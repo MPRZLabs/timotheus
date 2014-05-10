@@ -12,12 +12,17 @@ def partofday():
     else:
         return "night"
 
+def printandsay(text, end='\n'):
+    print(text, flush=True, end=end)
+    subprocess.call(["espeak",text])
+
 def main():
-    print("Icarus Analysis System")
+    printandsay("Icarus Analysis System")
     print("======================")
-    print("You invoked the halp request.")
-    print("The system will halp in 25 seconds.")
-    print("%s [" % random.choice(['Charging low orbit ion cannon','Submitting the last pull request','Fixing the last bug','Queueing cool tracks to check out tomorrow','Saving the world (to the least free file format)','Enjoying the %s' % partofday(), 'Playing banjo', 'Installing Arch Linux on every PC I find']), end='')
+    printandsay("You invoked the halp request.")
+    printandsay("The system will halp in 25 seconds.")
+    printandsay("Now %s" % random.choice(['charging low orbit ion cannon','submitting the last pull request','fixing the last bug','queueing cool tracks to check out tomorrow','saving the world (to the least free file format)','enjoying the %s' % partofday(), 'playing banjo', 'installing Arch Linux on every PC I find']), end='')
+    print(" [", end='', flush=True)
     i = 0
     while i < 100:
         i = i + 1
@@ -31,4 +36,5 @@ if __name__ == '__main__':
     try:
         main()
     except KeyboardInterrupt:
+        printandsay("Halp request cancelled")
         sys.exit(0)
