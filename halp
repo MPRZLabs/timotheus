@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+import datetime, subprocess, random, time, sys
+
+def partofday():
+    h = datetime.datetime.now().hour
+    if h > 17:
+        return "evening"
+    elif h > 12:
+        return "afternoon"
+    elif h > 6:
+        return "morning"
+    else:
+        return "night"
+
+def main():
+    print("Icarus Analysis System")
+    print("======================")
+    print("You invoked the halp request.")
+    print("The system will halp in 25 seconds.")
+    print("%s [" % random.choice(['Charging low orbit ion cannon','Submitting the last pull request','Fixing the last bug','Queueing cool tracks to check out tomorrow','Saving the world (to the least free file format)','Enjoying the %s' % partofday(), 'Playing banjo', 'Installing Arch Linux on every PC I find']), end='')
+    i = 0
+    while i < 100:
+        i = i + 1
+        print(".", end='', flush=True)
+        time.sleep(0.25)
+    print("]", flush=True)
+    print("The system will now halp:", flush=True)
+    subprocess.call(['poweroff'])
+
+if __name__ == '__main__':
+    try:
+        main()
+    except KeyboardInterrupt:
+        sys.exit(0)
