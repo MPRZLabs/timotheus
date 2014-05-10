@@ -12,6 +12,19 @@ def partofday():
     else:
         return "night"
 
+def sayings():
+    return [
+        "charging low orbit ion cannon",
+        "submitting the last pull request",
+        "fixing the last bug",
+        "queueing cool tracks to check out tomorrow",
+        "saving the world (to the least free file format)",
+        "enjoying the %s" % partofday(),
+        "playing banjo like a boss",
+        "installing Arch Linux on every PC I can find",
+        "becoming the greatest indie game developer in the world"
+    ]
+
 def printandsay(text, end='\n'):
     print(text, flush=True, end=end)
     subprocess.call(["espeak",text])
@@ -21,7 +34,7 @@ def main():
     print("======================")
     printandsay("You invoked the halp request.")
     printandsay("The system will halp in 25 seconds.")
-    printandsay("Now %s" % random.choice(['charging low orbit ion cannon','submitting the last pull request','fixing the last bug','queueing cool tracks to check out tomorrow','saving the world (to the least free file format)','enjoying the %s' % partofday(), 'playing banjo', 'installing Arch Linux on every PC I find']), end='')
+    printandsay("Now %s" % random.choice(sayings()), end='')
     print(" [", end='', flush=True)
     i = 0
     while i < 100:
