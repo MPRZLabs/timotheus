@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-import datetime, curses, random, time, sys, subprocess
+import datetime, random, time, sys, subprocess
 
 def printandsay(text, end='\n', wait=True):
     print(text, end)
@@ -9,60 +9,14 @@ def printandsay(text, end='\n', wait=True):
     else:
         subprocess.Popen(['espeak', text])
 
-class IcarusShell(object):
-    def randomsign(self):
-        return random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890')
-    def randomstr(self, length):
-        l = length
-        s =''
-        while l > 0:
-            s = s + self.randomsign()
-            l = l - 1
-        return s
-    def draw(self):
-        self.time = datetime.datetime.now().time()
-        l = self.dims[0] - 2
-        while l > 0:
-            h = self.dims[1] - 2
-            while h > 0:
-                self.screen.addch(h, l, ord(self.randomsign()), curses.color_pair(random.randrange(3)+2))
-                h = h - 1
-            l = l - 1
-        self.screen.refresh()
-    def redraw(self):
-        self.dims = self.screen.getmaxyx()
-        self.screen.clear()
-        self.screen.border()
-        titlebar = " Icarus Analysis System "
-        self.screen.addstr(0, round(self.dims[1]/2-len(titlebar)/2), titlebar, curses.color_pair(5))
-        self.draw()
-    def main(self, screen):
-        self.screen = screen
-        curses.init_pair(1, curses.COLOR_WHITE, curses.COLOR_BLACK)
-        curses.init_pair(2, curses.COLOR_RED, curses.COLOR_BLACK)
-        curses.init_pair(3, curses.COLOR_GREEN, curses.COLOR_BLACK)
-        curses.init_pair(4, curses.COLOR_YELLOW, curses.COLOR_BLACK)
-        curses.init_pair(5, curses.COLOR_BLACK, curses.COLOR_WHITE)
-        self.tim = time.time()
-        self.screen.nodelay(1)
-        self.redraw()
-        while True:
-            event = self.screen.getch()
-            if event == ord('q'):
-                break
-            if self.dims != self.screen.getmaxyx():
-                self.redraw()
-            if (time.time() - self.tim) > 0.25:
-                self.draw()
-                self.tim = time.time()
-
-def main(screen):
-    IcarusShell().main(screen)
-
 if __name__ == '__main__':
     printandsay("Initializing Icarus Analysis System", end='', wait=False)
     for i in range(0,99):
         print(".", end='')
         sys.stdout.flush()
-        time.sleep(0.25)
-    curses.wrapper(main)
+        time.sleep(0.1)
+    printandsay("Scanning the area for possible tracking")
+    matrix = subprocess.Popen(["cmatrix"])
+    time.sleep(10)
+    matrix.terminate()
+    
