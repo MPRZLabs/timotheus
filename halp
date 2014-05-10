@@ -33,7 +33,7 @@ def sayings():
 
 def printandsay(text, end='\n'):
     print(text, flush=True, end=end)
-    subprocess.call(["espeak",text])
+    subprocess.call(["espeak","-v", "english",text])
 
 def main():
     printandsay("Icarus Analysis System")
