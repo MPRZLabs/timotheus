@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 
-import datetime, curses, random, time, sys
+import datetime, curses, random, time, sys, subprocess
+
+def printandsay(text, end='\n', wait=True):
+    print(text, end)
+    if wait:
+        subprocess.call(['espeak', text])
+    else:
+        subprocess.Popen(['espeak', text])
 
 class IcarusShell(object):
     def randomsign(self):
@@ -53,7 +60,7 @@ def main(screen):
     IcarusShell().main(screen)
 
 if __name__ == '__main__':
-    print("Initializing Icarus Analysis System", end='')
+    printandsay("Initializing Icarus Analysis System", end='', wait=False)
     for i in range(0,99):
         print(".", end='')
         sys.stdout.flush()
