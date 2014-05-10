@@ -18,13 +18,14 @@ def main():
     print("You invoked the halp request.")
     print("The system will halp in 25 seconds.")
     print("%s [" % random.choice(['Charging low orbit ion cannon','Submitting the last pull request','Fixing the last bug','Queueing cool tracks to check out tomorrow','Saving the world (to the least free file format)','Enjoying the %s' % partofday(), 'Playing banjo', 'Installing Arch Linux on every PC I find']), end='')
-    i = 0
-    while i < 100:
-        i = i + 1
-        print(".", end='', flush=True)
+
+    for i in range(0, 99):
+        print(".", end='')
         time.sleep(0.25)
-    print("]", flush=True)
-    print("The system will now halp:", flush=True)
+        sys.stdout.flush()
+
+    print("]")
+    print("The system will now halp:")
     subprocess.call(['poweroff'])
 
 if __name__ == '__main__':
