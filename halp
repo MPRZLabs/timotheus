@@ -32,7 +32,8 @@ def sayings():
     ]
 
 def printandsay(text, end='\n'):
-    print(text, flush=True, end=end)
+    print(text, end=end)
+    sys.stdout.flush()
     subprocess.call(["espeak","-v", "english",text])
 
 def main():
@@ -40,14 +41,14 @@ def main():
     print("")
     printandsay("You invoked the halp request.")
     printandsay("The system will halp in 25 seconds.")
-    printandsay("Now %s" % random.choice(sayings()), end='')
-    print(" [", end='', flush=True)
-    i = 0
-    while i < 100:
-        i = i + 1
-        print(".", end='', flush=True)
+    printandsay("Now %s [" % random.choice(sayings()), end='')
+
+    for i in range(0, 99):
+        print(".", end='')
         time.sleep(0.25)
-    print("]", flush=True)
+        sys.stdout.flush()
+
+    print("]")
     printandsay("The system will now halp:")
     subprocess.call(['poweroff'])
 
