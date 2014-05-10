@@ -22,7 +22,13 @@ def sayings():
         "enjoying the %s" % partofday(),
         "playing banjo like a boss",
         "installing Arch Linux on every PC I can find",
-        "becoming the greatest indie game developer in the world"
+        "becoming the greatest indie game developer in the world",
+        "singing teenpop out loud",
+        "helping primitive species evolve",
+        "throwing pokeballs at people",
+        "pwning noobs",
+        "starting a flame war on Reddit",
+        "correct horse battery staple"
     ]
 
 def printandsay(text, end='\n'):
@@ -31,7 +37,7 @@ def printandsay(text, end='\n'):
 
 def main():
     printandsay("Icarus Analysis System")
-    print("======================")
+    print("")
     printandsay("You invoked the halp request.")
     printandsay("The system will halp in 25 seconds.")
     printandsay("Now %s" % random.choice(sayings()), end='')
@@ -42,7 +48,7 @@ def main():
         print(".", end='', flush=True)
         time.sleep(0.25)
     print("]", flush=True)
-    print("The system will now halp:", flush=True)
+    printandsay("The system will now halp:")
     subprocess.call(['poweroff'])
 
 if __name__ == '__main__':
