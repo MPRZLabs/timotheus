@@ -31,7 +31,7 @@ def main():
     if len(tracks) > 0:
       try:
         while True:
-          random.shuffle(tracks)random.shuffle(tracks)
+          random.shuffle(tracks)
           for track in tracks:
             subprocess.call([args.app, ' '.join(arguments), track])
       except KeyboardInterrupt:
