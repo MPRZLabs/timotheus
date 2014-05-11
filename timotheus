@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import subprocess, os, argparse, sys, random, mimetypes, logging
+
+logger = logging.getLogger("timotheus")
+
+def printandsay(text, end='\n', wait=True):
+  print(text, end)
+  if wait:
+      subprocess.call(['espeak', text])
+  else:
+      subprocess.Popen(['espeak', text])
+
+def main():
+  parser = argparse.ArgumentParser(description='Plays and loops .mid files from chosen directory with TiMidity++')
+  parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Midi')
+  parser.add_argument('--app', type=str, help='Executable of the MIDI player', default='timidity')
+  parser.add_argument('-f', '--faster', action='count', help='Slightly increases tempo (Timidity only)', default=0)
+  args = parser.parse_args()
+  arguments = []
+  if args.app == 'timidity':
+    arguments.append("-T")
+    arguments.append("%i" % (100+args.faster*20))
+  if os.path.isdir(args.path):
+    os.chdir(args.path)
+    logger.info("Parsing files in the directory...")
+    files = os.listdir()
+    tracks = []
+    for file in files:
+      if mimetypes.guess_type(file)[0] == 'audio/midi':
+        tracks.append(file)
+    if len(tracks) > 0:
+      try:
+        while True:
+          random.shuffle(tracks)random.shuffle(tracks)
+          for track in tracks:
+            subprocess.call([args.app, ' '.join(arguments), track])
+      except KeyboardInterrupt:
+        sys.exit(0)
+      except OSError:
+        logger.error("OS error reached. Most probably the app specified doesn't exist.")
+        sys.exit(3)
+    else:
+      logger.error("No tracks found")
+      sys.exit(2)
+  else:
+    logger.error("Not a directory")
+
+if __name__ == '__main__':
+  main()

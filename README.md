@@ -23,3 +23,8 @@ Saybday
 -------
 * __Dependencies:__ Python 3, Espeak, Birthday
 * __Goal:__ Read upcoming birthdays and anniversaries out loud while listing them.
+
+Timotheus
+---------
+* __Dependencies:__ Python 3, TiMidity++ (or other commandline MIDI player (requires additional parameter))
+* __Goal:__ Play .mid files from chosen directory.
