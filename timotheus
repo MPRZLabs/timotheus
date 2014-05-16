@@ -13,13 +13,16 @@ def printandsay(text, end='\n', wait=True):
 def main():
   parser = argparse.ArgumentParser(description='Plays and loops .mid files from chosen directory with TiMidity++')
   parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Midi')
-  parser.add_argument('--app', type=str, help='Executable of the MIDI player', default='timidity')
+  parser.add_argument('-a', '--app', type=str, help='Executable of the MIDI player', default='timidity')
   parser.add_argument('-f', '--faster', action='count', help='Slightly increases tempo (Timidity only)', default=0)
+  parser.add_argument('-k', '--key', type=int, default=0)
   args = parser.parse_args()
   arguments = []
   if args.app == 'timidity':
     arguments.append("-T")
     arguments.append("%i" % (100+args.faster*20))
+    arguments.append("--adjust-key=%i" % args.key)
+    print(arguments)
   if os.path.isdir(args.path):
     os.chdir(args.path)
     logger.info("Parsing files in the directory...")
@@ -34,6 +37,9 @@ def main():
           random.shuffle(tracks)
           for track in tracks:
             subprocess.call([args.app, ' '.join(arguments), track])
+            print()
+            print()
+            print()
       except KeyboardInterrupt:
         sys.exit(0)
       except OSError:

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 import subprocess
 def main():
-    text = subprocess.check_output("birthday", universal_newlines=True).strip()
+    text = subprocess.check_output(["birthday", "-W", "90"], universal_newlines=True).strip()
     data = text.split('\n')
     for event in data:
         print(event)
