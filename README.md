@@ -26,6 +26,7 @@ Programs included
  * _Dependencies:_ Python 3, MichiMPRIS, running Tomahawk app
 * __Michify8080.py__ - A webapp to control Spotify from local network, runs on port 8080.
  * _Dependencies:_ Python 3, Flask (Python webapp library), running ALSA, pyalsaaudio, MichiSpotify
+ * _Warning:_ Won't work without additional files in working directory.
  * _Required additional files_: `templates` directory, `static` directory
 * __SptSH__ - A curses interface for Spotify. Kinda.
  * _Dependencies:_ Python 3, MichiSpotify, curses
