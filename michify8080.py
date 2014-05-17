@@ -2,19 +2,8 @@
 from flask import Flask, render_template, redirect, url_for, json
 import subprocess, random, sys
 import michispotify as spotify
-from alsaaudio import Mixer
 app = Flask(__name__)
 spt = spotify.SpotifyController()
-mxr = Mixer()
-
-volumes = [0,0,0,0,0,0]
-volumes[0] = 0
-volumes[1] = 80
-volumes[2] = 85
-volumes[3] = 90
-volumes[4] = 95
-volumes[5] = 100
-
 
 password = random.randint(100000,999999)
 print(password)
@@ -45,13 +34,6 @@ def toggleplay():
     spt.playpause()
     return redirect(url_for('homepage'))
 
-@app.route('/v/<int:volume>')
-@app.route('/volume/<int:volume>')
-def volume(volume):
-    if volume <= 100 and volume >= 0:
-        mxr.setvolume(volume)
-    return redirect(url_for('homepage'))
-
 @app.route('/api/shortstatus')
 def apishortstatus():
     return "%s - %s" % (spt.title().decode(), spt.artist().decode())
@@ -75,18 +57,17 @@ def apiprev():
     spt.previous()
     return ""
 
-@app.route('/api/volume/<int:volume>')
-def apivolume(volume):
-    if volume <= 5 and volume >= 0:
-        mxr.setvolume(volumes[0])
-    return ""
-
 @app.route('/sd/<int:passcode>')
 def shutdown(passcode):
     if passcode == password:
         subprocess.Popen('poweroff')
         sys.exit(0)
     return redirect(url_for('homepage'))
+
+@app.route('/robots.txt')
+def robots():
+  return """User-Agent: *
+Disallow: /"""
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0',port=8080)
