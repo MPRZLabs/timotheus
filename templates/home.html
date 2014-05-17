@@ -17,13 +17,13 @@
           <a role="button" class="btn btn-sm btn-default" href="{{linkr}}">
             Michify8080 <span class="glyphicon glyphicon-refresh"></span>
           </a>
-          <a role="button" class="btn btn-sm btn-danger" href="{{linkp}}">
+          <a role="button" class="btn btn-sm btn-danger" onClick="prevTrack()" href="#">
             <span class="glyphicon glyphicon-fast-backward"></span>
           </a>
-          <a role="button" class="btn btn-sm btn-primary" href="{{linkt}}">
+          <a role="button" class="btn btn-sm btn-primary" onClick="toglTrack()" href="#">
             <span class="glyphicon glyphicon-step-forward"></span>
           </a>
-          <a role="button" class="btn btn-sm btn-success" href="{{linkn}}">
+          <a role="button" class="btn btn-sm btn-success" onClick="nextTrack()" href="#">
             <span class="glyphicon glyphicon-fast-forward"></span>
           </a>
         </div>
@@ -68,6 +68,15 @@
         $("#track").text(given.track);
         $("#album").text(given.album);
         $("#artist").text(given.artist);
+      }
+      function prevTrack() {
+        $.get("{{linkp}}",{},michifyCheck);
+      }
+      function toglTrack() {
+        $.get("{{linkt}}",{},michifyCheck);
+      }
+      function nextTrack() {
+        $.get("{{linkn}}",{},michifyCheck);
       }
       setInterval("michifyCheck()", 10000);
     </script>

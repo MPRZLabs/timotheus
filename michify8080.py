@@ -21,7 +21,7 @@ print(password)
 
 @app.route('/')
 def homepage():
-    return render_template('home.html', artist=spt.artist().decode(), album=spt.album().decode(), track=spt.title().decode(), css=url_for('static', filename='style.css'), js=url_for('static', filename='additional.js'), linkn=url_for('apinext'), linkp=url_for('prevtrack'), linkr=url_for('homepage'), linkt=url_for('toggleplay'), vol1=url_for('volume', volume=volumes[1]), vol2=url_for('volume', volume=volumes[2]), vol3=url_for('volume', volume=volumes[3]), vol4=url_for('volume', volume=volumes[4]), vol5=url_for('volume', volume=volumes[5]), volm=url_for('volume', volume=volumes[0]), jsonstatusapi=url_for('apijsonstatus'), volume=mxr.getvolume('playback')[0])
+    return render_template('home.html', artist=spt.artist().decode(), album=spt.album().decode(), track=spt.title().decode(), css=url_for('static', filename='style.css'), js=url_for('static', filename='additional.js'), linkn=url_for('apinext'), linkp=url_for('apiprev'), linkr=url_for('homepage'), linkt=url_for('apitoggle'), vol1=url_for('volume', volume=volumes[1]), vol2=url_for('volume', volume=volumes[2]), vol3=url_for('volume', volume=volumes[3]), vol4=url_for('volume', volume=volumes[4]), vol5=url_for('volume', volume=volumes[5]), volm=url_for('volume', volume=volumes[0]), jsonstatusapi=url_for('apijsonstatus'), volume=mxr.getvolume('playback')[0])
 
 @app.route('/favicon.ico')
 def favicon():
