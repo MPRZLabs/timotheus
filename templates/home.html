@@ -50,9 +50,9 @@
             5
           </a>
         </div>
-        <h3><small><span class="label label-default">track</span></small> <span class="fin">{{track}}</span></h3>
-        <h3><small><span class="label label-default">artist</span></small> <span class="fin">{{artist}}</span></h3>
-        <h3><small><span class="label label-default">album</span></small> <span class="fin">{{album}}</span></h3>
+        <h3><small><span class="label label-default">track</span></small> <span class="fin" id="track">{{track}}</span></h3>
+        <h3><small><span class="label label-default">artist</span></small> <span class="fin" id="artist">{{artist}}</span></h3>
+        <h3><small><span class="label label-default">album</span></small> <span class="fin" id="album">{{album}}</span></h3>
       </div>
       <footer>
         <ol class="breadcrumb">
@@ -60,5 +60,16 @@
         </ol>
       </footer>
     </div>
+    <script type="text/javascript">
+      function michifyCheck() {
+        $.get("{{jsonstatusapi}}",{}, michifyUpdate, "json");
+      }
+      function michifyUpdate(given) {
+        $("#track").text(given.track);
+        $("#album").text(given.album);
+        $("#artist").text(given.artist);
+      }
+      setInterval("michifyCheck()", 10000);
+    </script>
   </body>
 </html>
