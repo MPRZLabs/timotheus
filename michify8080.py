@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-from flask import Flask, render_template, redirect, url_for, json
+from flask import Flask, render_template, redirect, url_for, json, request
 import subprocess, random, sys
 import michispotify as spotify
 app = Flask(__name__)
@@ -8,9 +8,16 @@ spt = spotify.SpotifyController()
 password = random.randint(100000,999999)
 print(password)
 
+def reftime(Host):
+    print(Host)
+    if Host == "127.0.0.1:8080":
+        return 3
+    else:
+        return 10
+
 @app.route('/')
 def homepage():
-    return render_template('home.html',  artist=spt.artist().decode(), album=spt.album().decode(), track=spt.title().decode(), css=url_for('static', filename='style.css'), js=url_for('static', filename='additional.js'), linkn=url_for('apinext'), linkp=url_for('apiprev'), linkr=url_for('homepage'), linkt=url_for('apitoggle'), jsonstatusapi=url_for('apijsonstatus'), mobileurl=url_for('mobilehome'))
+    return render_template('home.html',  artist=spt.artist().decode(), album=spt.album().decode(), track=spt.title().decode(), css=url_for('static', filename='style.css'), js=url_for('static', filename='additional.js'), linkn=url_for('apinext'), linkp=url_for('apiprev'), linkr=url_for('homepage'), linkt=url_for('apitoggle'), jsonstatusapi=url_for('apijsonstatus'), mobileurl=url_for('mobilehome'), reftime=reftime(request.host))
 
 @app.route('/favicon.ico')
 def favicon():
