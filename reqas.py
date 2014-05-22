@@ -3,56 +3,36 @@
 from pymarkovchain import MarkovChain
 import twitter, os, json, sys
 
-class GenP(object):
-  def __init__(self, performer, person, spec=False):
-    self.performer = performer
-    self.person = person
-    self.spec = spec
-
-class GenV(object):
-  def __init__(self, present, past=None, presentspec=None, future=None, subject=True):
-    self.present = present
-    if past is None:
-      self.past = "%sd" % self.present
-    else:
-      self.past = past
-    if presentspec is None:
-      self.presentspec = "%ss" % self.present
-    else:
-      self.presentspec = presentspec
-    if future is None:
-      self.future = self.present
-    else:
-      self.future = future
-    self.subject = subject
-
 class AutoGen(object):
   def __init__(self):
-    self.performers = [GenP("I",1),GenP("You",2),GenP("He",3,True),GenP("She",3,True),GenP("It",3,True),GenP("We",1),GenP("They",3),GenP("Someone",3,True),GenP("Somebody",3,True),GenP("Anyone",3,True),GenP("Anybody",3,True),GenP("Everyone",3,True),GenP("Everybody",3,True),GenP("World",3,True),GenP("The world",3,True),GenP("Cake",3,True)]
-    self.verbs = [GenV("like"),GenV("do","did","does",subject=False),GenV("hate"),GenV("dislike"),GenV("love"),GenV("do not mind","did not mind","does not mind","not mind"),GenV("think","thought", subject=False),GenV("think about","thought about","thinks about"),GenV("find","found"),GenV("find out about","found out about","finds out about"),GenV("have","had","has"),GenV("fall in love with","fell in love with","falls in love with"),GenV("bake"),GenV("get baked by","got baked by","gets baked by"),GenV("wake up","woke up","wakes up",subject=False),GenV("fly","flew","flies",subject=False),GenV("compile"),GenV("read","read")]
-    self.subjects = ["me","you","him","her","it","us","them","pancakes","bicycles","Twitter","video games","science-fiction movies","Minecraft","Braid","anarchy","cat","cats","Linux","Windows","Microsoft","Apple","a car","Jimmy","big giant circles","Facebook","Steve"]
+    with open("margenperformers.json") as file:
+      self.performers = json.loads(file.read())
+    with open("margenverbs.json") as file:
+      self.verbs = json.loads(file.read())
+    with open("margensubjects.json") as file:
+      self.subjects = json.loads(file.read())
   def gen(self):
     for verb in self.verbs:
       for perf in self.performers:
-        if verb.subject:
+        if verb['use-subject']:
           for subj in self.subjects:
-            if perf.spec:
-              print("%s %s %s." % (perf.performer, verb.presentspec, subj))
+            if perf['special']:
+              print("%s %s %s." % (perf['performer'], verb['present-special'], subj))
             else:
-              print("%s %s %s." % (perf.performer, verb.present, subj))
-            print("%s %s %s." % (perf.performer, verb.past, subj))
-            print("%s did not %s %s." % (perf.performer, verb.present, subj))
-            print("%s will %s %s." % (perf.performer, verb.future, subj))
-            print("%s will not %s %s." % (perf.performer, verb.future, subj))
+              print("%s %s %s." % (perf['performer'], verb['present'], subj))
+            print("%s %s %s." % (perf['performer'], verb['past'], subj))
+            print("%s did not %s %s." % (perf['performer'], verb['present'], subj))
+            print("%s will %s %s." % (perf['performer'], verb['future'], subj))
+            print("%s will not %s %s." % (perf['performer'], verb['future'], subj))
         else:
-          if perf.spec:
-            print("%s %s." % (perf.performer, verb.presentspec))
+          if perf['special']:
+            print("%s %s." % (perf['performer'], verb['present-special']))
           else:
-            print("%s %s." % (perf.performer, verb.present))
-          print("%s %s." % (perf.performer, verb.past))
-          print("%s did not %s." % (perf.performer, verb.present))
-          print("%s will %s." % (perf.performer, verb.future))
-          print("%s will not %s." % (perf.performer, verb.future))
+            print("%s %s." % (perf['performer'], verb['present']))
+          print("%s %s." % (perf['performer'], verb['past']))
+          print("%s did not %s." % (perf['performer'], verb['present']))
+          print("%s will %s." % (perf['performer'], verb['future']))
+          print("%s will not %s." % (perf['performer'], verb['future']))
 
 class Michiov(object):
   def __init__(self, autogen=True, markovdb=os.path.expanduser("~/markov"), twcreds=os.path.expanduser("~/.michiov_twitter_credentials"),twappcreds=os.path.expanduser("~/.michiov_twitter_appdata")):
