@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
-import spotify, curses, datetime, mpris, dbus
+import curses, datetime, dbus
+import michispotify as spotify
+import michimpris as mpris
 class SpotifyShell(object):
     def redraw(self):
         self.title = self.spt.title()

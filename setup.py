@@ -1,6 +1,6 @@
 from distutils.core import setup
 setup(name='michi-icarus',
-      version='1.0.2',
+      version='1.0.3',
       author='Michał Sidor',
       author_email='michcioperz@gmail.com',
       description='various tools used by Michcioperz daily',
