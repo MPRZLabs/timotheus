@@ -1,3 +1,0 @@
-Flask>=0.10.1
-pyalsaaudio>=0.7
-pygobject>=3.12.1
