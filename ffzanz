@@ -1,0 +1,58 @@
+#!/usr/bin/env python3
+import subprocess, os, argparse, sys, random, mimetypes, logging, tty, termios
+
+logger = logging.getLogger("ffzanz")
+
+def getch():
+  fd = sys.stdin.fileno()
+  oldsets = termios.tcgetattr(fd)
+  try:
+    tty.setraw(sys.stdin.fileno())
+    ch = sys.stdin.read(1)
+  finally:
+    termios.tcsetattr(fd, termios.TCSADRAIN, oldsets)
+  return ch
+
+def main():
+  parser = argparse.ArgumentParser(description='Plays and loops music files from chosen directory with FFmpeg')
+  parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Muzyka')
+  args = parser.parse_args()
+  if os.path.isdir(args.path):
+    logger.info("Parsing files in the directory...")
+    files = []
+    for dirpath, dirnames, filenames in os.walk(args.path):
+      for filename in filenames:
+        files.append(os.path.join(dirpath, filename))
+    tracks = []
+    for file in files:
+      if mimetypes.guess_type(file)[0].startswith('audio/'):
+        tracks.append(file)
+    if len(tracks) > 0:
+      try:
+        while True:
+          random.shuffle(tracks)
+          for track in tracks:
+            print(track)
+            playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', track])
+            while True:
+              try:
+                playa.wait(timeout=1)
+                break
+              except subprocess.TimeoutExpired:
+                cmnd = getch()
+                if 'n' in cmnd:
+                  playa.kill()
+                  break
+                if 'q' in cmnd:
+                  playa.kill()
+                  sys.exit(0)
+      except KeyboardInterrupt:
+        sys.exit(0)
+    else:
+      logger.error("No tracks found")
+      sys.exit(2)
+  else:
+    logger.error("Not a directory")
+
+if __name__ == '__main__':
+  main()
