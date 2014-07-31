@@ -1,0 +1,32 @@
+#!/usr/bin/env python3
+import os, argparse, mimetypes, logging, json, subprocess
+from michimusemodels import *
+
+logger = logging.getLogger("mr.scan.64")
+
+def main():
+  parser = argparse.ArgumentParser(description='Builds music library for FFzanz')
+  parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Muzyka')
+  args = parser.parse_args()
+  if os.path.isdir(args.path):
+    for dirpath, dirnames, filenames in os.walk(args.path):
+      for filename in filenames:
+        file = os.path.join(dirpath, filename)
+        if mimetypes.guess_type(file)[0].startswith('audio/'):
+          try:
+            Track.get(Track.path == file)
+          except Track.DoesNotExist:
+            print(file)
+            print()
+            p1 = subprocess.Popen(['mutagen-inspect',file],stdout=subprocess.PIPE)
+            p2 = subprocess.Popen(['grep', "^TITLE=\|^ALBUM=\|^ARTIST=\|^TIT.=\|^TPE.="], stdin=p1.stdout)
+            p2.wait()
+            print()
+            t = Track.create(title=input("Title: "),album=input("Album: "),artist=input("Artist: "),path=file)
+            print()
+            print()
+  else:
+    logger.error("Not a directory")
+
+if __name__ == '__main__':
+  main()
