@@ -9,6 +9,9 @@ def main():
   parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Muzyka')
   args = parser.parse_args()
   if os.path.isdir(args.path):
+    lastalbum = ""
+    lastartist = ""
+    tracks = []
     for dirpath, dirnames, filenames in os.walk(args.path):
       for filename in filenames:
         file = os.path.join(dirpath, filename)
@@ -16,15 +19,29 @@ def main():
           try:
             Track.get(Track.path == file)
           except Track.DoesNotExist:
-            print(file)
-            print()
-            p1 = subprocess.Popen(['mutagen-inspect',file],stdout=subprocess.PIPE)
-            p2 = subprocess.Popen(['grep', "^TITLE=\|^ALBUM=\|^ARTIST=\|^TIT.=\|^TPE.="], stdin=p1.stdout)
-            p2.wait()
-            print()
-            t = Track.create(title=input("Title: "),album=input("Album: "),artist=input("Artist: "),path=file)
-            print()
-            print()
+            tracks.append(file)
+    for file in tracks:
+      print("%i of %i" % (tracks.index(file)+1, len(tracks)))
+      print(file)
+      print()
+      p1 = subprocess.Popen(['mutagen-inspect',file],stdout=subprocess.PIPE)
+      p2 = subprocess.Popen(['grep', "^TITLE=\|^ALBUM=\|^ARTIST=\|^TIT.=\|^TPE.="], stdin=p1.stdout)
+      p2.wait()
+      print()
+      title = input("Title: ")
+      album = input("Album: [%s] " % lastalbum)
+      if len(album) < 1:
+        album = lastalbum
+      else:
+        lastalbum = album
+      artist = input("Artist: [%s] " % lastartist)
+      if len(artist) < 1:
+        artist = lastartist
+      else:
+        lastartist = artist
+      t = Track.create(title=title,album=album,artist=artist,path=file)
+      print()
+      print()
   else:
     logger.error("Not a directory")
 
