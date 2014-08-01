@@ -17,18 +17,14 @@ def main():
       for track in tracks:
         print(track)
         playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', track.path])
-        while True:
-          try:
-            playa.wait(timeout=0.3)
+        while playa.poll() is None:
+          cmnd = getch()
+          if 'n' in cmnd:
+            playa.kill()
             break
-          except subprocess.TimeoutExpired:
-            cmnd = getch()
-            if 'n' in cmnd:
-              playa.kill()
-              break
-            if 'q' in cmnd:
-              playa.kill()
-              sys.exit(0)
+          if 'q' in cmnd:
+            playa.kill()
+            sys.exit(0)
   except KeyboardInterrupt:
     sys.exit(0)
 
