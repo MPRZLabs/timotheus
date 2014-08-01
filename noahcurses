@@ -1,0 +1,50 @@
+import curses, random, subprocess
+from michimusemodels import *
+
+class NoahCurses(object):
+  def draw(self):
+    self.dims = self.screen.getmaxyx()
+    self.screen.clear()
+    self.screen.addstr(2, 2, "Now playing")
+    self.screen.addstr(3, 4, self.current.title)
+    self.screen.addstr(4, 2, "by")
+    self.screen.addstr(5, 4, self.current.artist)
+    self.screen.addstr(6, 2, "from")
+    self.screen.addstr(7, 4, self.current.album)
+    self.screen.border()
+    self.screen.refresh()
+  def reloadtracks(self):
+    self.tracks = []
+    for track in Track.select():
+      self.tracks.append(track)
+    random.shuffle(self.tracks)
+  def newtrack(self):
+    if len(self.tracks) < 1:
+      self.reloadtracks()
+    self.current = self.tracks.pop()
+    self.playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', '-autoexit', self.current.path])
+    self.draw()
+  def main(self, screen):
+    self.screen = screen
+    curses.curs_set(0)
+    self.screen.nodelay(1)
+    self.reloadtracks()
+    self.newtrack()
+    while True:
+      if self.playa.poll() is not None:
+        self.newtrack()
+      event = self.screen.getch()
+      if event == ord("q"):
+        self.playa.kill()
+        break
+      if event == ord("n") or event == curses.KEY_RIGHT:
+        self.playa.kill()
+        self.newtrack()
+      if event == ord("s"):
+        self.reloadtracks()
+        self.newtrack()
+      if event == ord("r"):
+        self.draw()
+
+if __name__ == '__main__':
+  curses.wrapper(NoahCurses().main)
