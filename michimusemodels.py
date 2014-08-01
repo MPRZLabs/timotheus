@@ -8,17 +8,23 @@ class Track(Model):
   title = CharField()
   artist = CharField()
   album = CharField()
+  def get_title(self):
+    if len(self.title) < 1:
+      return ":::"
+    else:
+      return self.title
+  def get_album(self):
+    if len(self.album) < 1:
+      return ":::"
+    else:
+      return self.album
+  def get_artist(self):
+    if len(self.artist) < 1:
+      return ":::"
+    else:
+      return self.artist
   def __str__(self):
-    ttl = self.title
-    if len(ttl) < 1:
-      ttl = ":::"
-    ats = self.artist
-    if len(ats) < 1:
-      ats = ":::"
-    abm = self.album
-    if len(abm) < 1:
-      abm = ":::"
-    return "%s by %s from %s" % (ttl, ats, abm)
+    return "%s by %s from %s" % (self.get_title(), self.get_artist(), self.get_album())
   def __repr__(self):
     return "[Track %s]" % self.__str__()
   class Meta:
