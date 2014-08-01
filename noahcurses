@@ -1,9 +1,13 @@
 #!/usr/bin/env python3
-import curses, random, subprocess
+import curses, random, subprocess, argparse, re, json
 from michimusemodels import *
 
 class NoahCurses(object):
   titlebar = "noahcurses"
+  def __init__(self, args):
+    self.artistregex = re.compile(args.artist)
+    self.albumregex = re.compile(args.album)
+    self.titleregex = re.compile(args.title)
   def draw(self):
     self.dims = self.screen.getmaxyx()
     self.screen.clear()
@@ -19,7 +23,8 @@ class NoahCurses(object):
   def reloadtracks(self):
     self.tracks = []
     for track in Track.select():
-      self.tracks.append(track)
+      if self.artistregex.search(track.get_artist()) and self.albumregex.search(track.get_album()) and self.titleregex.search(track.get_title()):
+        self.tracks.append(track)
     random.shuffle(self.tracks)
   def newtrack(self):
     if len(self.tracks) < 1:
@@ -55,4 +60,14 @@ class NoahCurses(object):
         self.draw()
 
 if __name__ == '__main__':
-  curses.wrapper(NoahCurses().main)
+  parser = argparse.ArgumentParser()
+  if not os.path.exists(os.path.expanduser('~/.config/michimuseconf.json')):
+    with open(os.path.expanduser('~/.config/michimuseconf.json'),'w') as confile:
+      confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+'}}, indent=4))
+  with open(os.path.expanduser('~/.config/michimuseconf.json')) as confile:
+    defreg = json.loads(confile.read())
+  parser.add_argument('--artist', type=str, help='artist regex to match', default=defreg['regex']['artist'])
+  parser.add_argument('--album', type=str, help='album regex to match', default=defreg['regex']['album'])
+  parser.add_argument('--title', type=str, help='title regex to match', default=defreg['regex']['title'])
+  args = parser.parse_args()
+  curses.wrapper(NoahCurses(args).main)
