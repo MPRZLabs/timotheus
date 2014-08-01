@@ -8,6 +8,7 @@ class NoahCurses(object):
     self.artistregex = re.compile(args.artist)
     self.albumregex = re.compile(args.album)
     self.titleregex = re.compile(args.title)
+    self.pathregex = re.compile(args.path)
   def draw(self):
     self.dims = self.screen.getmaxyx()
     self.screen.clear()
@@ -23,7 +24,7 @@ class NoahCurses(object):
   def reloadtracks(self):
     self.tracks = []
     for track in Track.select():
-      if self.artistregex.search(track.get_artist()) and self.albumregex.search(track.get_album()) and self.titleregex.search(track.get_title()):
+      if self.artistregex.search(track.get_artist()) and self.albumregex.search(track.get_album()) and self.titleregex.search(track.get_title()) and self.pathregex.search(track.path):
         self.tracks.append(track)
     random.shuffle(self.tracks)
   def newtrack(self):
@@ -63,11 +64,12 @@ if __name__ == '__main__':
   parser = argparse.ArgumentParser()
   if not os.path.exists(os.path.expanduser('~/.config/michimuseconf.json')):
     with open(os.path.expanduser('~/.config/michimuseconf.json'),'w') as confile:
-      confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+'}}, indent=4))
+      confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+','path':'.+'}}, indent=4))
   with open(os.path.expanduser('~/.config/michimuseconf.json')) as confile:
     defreg = json.loads(confile.read())
   parser.add_argument('--artist', type=str, help='artist regex to match', default=defreg['regex']['artist'])
   parser.add_argument('--album', type=str, help='album regex to match', default=defreg['regex']['album'])
   parser.add_argument('--title', type=str, help='title regex to match', default=defreg['regex']['title'])
+  parser.add_argument('--path', type=str, help='path regex to match', default=defreg['regex']['path'])
   args = parser.parse_args()
   curses.wrapper(NoahCurses(args).main)
