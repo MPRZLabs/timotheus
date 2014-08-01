@@ -9,7 +9,18 @@ class Track(Model):
   artist = CharField()
   album = CharField()
   def __str__(self):
-    return "%s by %s from %s [%s]" % (self.title, self.artist, self.album, self.path)
+    ttl = self.title
+    if len(ttl) < 1:
+      ttl = ":::"
+    ats = self.artist
+    if len(ats) < 1:
+      ats = ":::"
+    abm = self.album
+    if len(abm) < 1:
+      abm = ":::"
+    return "%s by %s from %s" % (ttl, ats, abm)
+  def __repr__(self):
+    return "[Track %s]" % self.__str__()
   class Meta:
     database = db
 

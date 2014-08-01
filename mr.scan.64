@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import os, argparse, mimetypes, logging, json, subprocess
+import os, argparse, mimetypes, logging, json, subprocess, mutagenx
 from michimusemodels import *
 
 logger = logging.getLogger("mr.scan.64")
@@ -7,10 +7,9 @@ logger = logging.getLogger("mr.scan.64")
 def main():
   parser = argparse.ArgumentParser(description='Builds music library for FFzanz')
   parser.add_argument('path', type=str, help='Directory containing the wanted files', default='/mnt/homie/Muzyka')
+  parser.add_argument('--auto', action="store_true")
   args = parser.parse_args()
   if os.path.isdir(args.path):
-    lastalbum = ""
-    lastartist = ""
     tracks = []
     for dirpath, dirnames, filenames in os.walk(args.path):
       for filename in filenames:
@@ -23,22 +22,31 @@ def main():
     for file in tracks:
       print("%i of %i" % (tracks.index(file)+1, len(tracks)))
       print(file)
-      print()
-      p1 = subprocess.Popen(['mutagen-inspect',file],stdout=subprocess.PIPE)
-      p2 = subprocess.Popen(['grep', "^TITLE=\|^ALBUM=\|^ARTIST=\|^TIT.=\|^TPE.="], stdin=p1.stdout)
-      p2.wait()
-      print()
-      title = input("Title: ")
-      album = input("Album: [%s] " % lastalbum)
-      if len(album) < 1:
-        album = lastalbum
+      mutafile = mutagenx.File(file, easy=True)
+      if args.auto and "title" in mutafile and "album" in mutafile and "artist" in mutafile:
+        title = mutafile["title"][0]
+        album = mutafile["album"][0]
+        artist = mutafile["artist"][0]
       else:
-        lastalbum = album
-      artist = input("Artist: [%s] " % lastartist)
-      if len(artist) < 1:
-        artist = lastartist
-      else:
-        lastartist = artist
+        print()
+        if "title" in mutafile:
+          title = input("Title: [%s] " % mutafile["title"][0])
+          if len(title) < 1:
+            title = mutafile["title"][0]
+        else:
+          title = input("Title: ")
+        if "album" in mutafile:
+          album = input("Album: [%s] " % mutafile["album"][0])
+          if len(album) < 1:
+            album = mutafile["album"][0]
+        else:
+          album = input("Album: ")
+        if "artist" in mutafile:
+          artist = input("Artist: [%s] " % mutafile["artist"][0])
+          if len(artist) < 1:
+            artist = mutafile["artist"][0]
+        else:
+          artist = input("Artist: ")
       t = Track.create(title=title,album=album,artist=artist,path=file)
       print()
       print()

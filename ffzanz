@@ -1,18 +1,9 @@
 #!/usr/bin/env python3
 import subprocess, os, argparse, sys, random, mimetypes, logging, tty, termios
+from getch import getch
 from michimusemodels import *
 
 logger = logging.getLogger("ffzanz")
-
-def getch():
-  fd = sys.stdin.fileno()
-  oldsets = termios.tcgetattr(fd)
-  try:
-    tty.setraw(sys.stdin.fileno())
-    ch = sys.stdin.read(1)
-  finally:
-    termios.tcsetattr(fd, termios.TCSADRAIN, oldsets)
-  return ch
 
 def main():
   parser = argparse.ArgumentParser(description='Plays music from mr.scan.64 database with FFmpeg')
@@ -28,7 +19,7 @@ def main():
         playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', track.path])
         while True:
           try:
-            playa.wait(timeout=1)
+            playa.wait(timeout=0.3)
             break
           except subprocess.TimeoutExpired:
             cmnd = getch()
