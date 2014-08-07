@@ -4,6 +4,7 @@ from michimusemodels import *
 
 class NoahCurses(object):
   titlebar = "noahcurses"
+  playa = None
   def __init__(self, args):
     self.artistregex = re.compile(args.artist)
     self.albumregex = re.compile(args.album)
@@ -30,6 +31,9 @@ class NoahCurses(object):
   def newtrack(self):
     if len(self.tracks) < 1:
       self.reloadtracks()
+    if self.playa:
+      while self.playa.poll() is None:
+        self.playa.kill()
     self.current = self.tracks.pop()
     self.playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', '-autoexit', self.current.path])
     self.draw()
