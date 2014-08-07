@@ -67,9 +67,9 @@ if __name__ == '__main__':
       confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+','path':'.+'}}, indent=4))
   with open(os.path.expanduser('~/.config/michimuseconf.json')) as confile:
     defreg = json.loads(confile.read())
-  parser.add_argument('--artist', type=str, help='artist regex to match', default=defreg['regex']['artist'])
-  parser.add_argument('--album', type=str, help='album regex to match', default=defreg['regex']['album'])
-  parser.add_argument('--title', type=str, help='title regex to match', default=defreg['regex']['title'])
-  parser.add_argument('--path', type=str, help='path regex to match', default=defreg['regex']['path'])
+  parser.add_argument('-ar', '--artist', type=str, help='artist regex to match', default=defreg['regex']['artist'])
+  parser.add_argument('-al', '--album', type=str, help='album regex to match', default=defreg['regex']['album'])
+  parser.add_argument('-t', '--title', type=str, help='title regex to match', default=defreg['regex']['title'])
+  parser.add_argument('-p', '--path', type=str, help='path regex to match', default=defreg['regex']['path'])
   args = parser.parse_args()
   curses.wrapper(NoahCurses(args).main)
