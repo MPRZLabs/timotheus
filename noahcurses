@@ -10,6 +10,10 @@ class NoahCurses(object):
     self.albumregex = re.compile(args.album)
     self.titleregex = re.compile(args.title)
     self.pathregex = re.compile(args.path)
+    if len(args.glob) > 0:
+      self.globalregex = re.compile(args.glob)
+    else:
+      self.globalregex = None
   def draw(self):
     self.dims = self.screen.getmaxyx()
     self.screen.clear()
@@ -24,9 +28,14 @@ class NoahCurses(object):
     self.screen.refresh()
   def reloadtracks(self):
     self.tracks = []
-    for track in Track.select():
-      if self.artistregex.search(track.get_artist()) and self.albumregex.search(track.get_album()) and self.titleregex.search(track.get_title()) and self.pathregex.search(track.path):
-        self.tracks.append(track)
+    if self.globalregex is not None:
+      for track in Track.select():
+        if self.globalregex.match(track.get_artist()) or self.globalregex.match(track.get_album()) or self.globalregex.match(track.get_title()) or self.globalregex.match(track.path):
+          self.tracks.append(track)
+    else:
+      for track in Track.select():
+        if self.artistregex.match(track.get_artist()) and self.albumregex.match(track.get_album()) and self.titleregex.match(track.get_title()) and self.pathregex.match(track.path):
+          self.tracks.append(track)
     random.shuffle(self.tracks)
   def newtrack(self):
     if len(self.tracks) < 1:
@@ -75,5 +84,6 @@ if __name__ == '__main__':
   parser.add_argument('-al', '--album', type=str, help='album regex to match', default=defreg['regex']['album'])
   parser.add_argument('-t', '--title', type=str, help='title regex to match', default=defreg['regex']['title'])
   parser.add_argument('-p', '--path', type=str, help='path regex to match', default=defreg['regex']['path'])
+  parser.add_argument('-g', '--glob', type=str, help='regex that anything has to match', default="")
   args = parser.parse_args()
   curses.wrapper(NoahCurses(args).main)
