@@ -19,7 +19,7 @@ def main():
             try:
               Track.get(Track.path == file)
             except Track.DoesNotExist:
-              tracks.append(file)
+              tracks.append(os.path.abspath(file))
     for file in tracks:
       print("%i of %i" % (tracks.index(file)+1, len(tracks)))
       print(file)
