@@ -14,11 +14,12 @@ def main():
     for dirpath, dirnames, filenames in os.walk(args.path):
       for filename in filenames:
         file = os.path.join(dirpath, filename)
-        if mimetypes.guess_type(file)[0].startswith('audio/'):
-          try:
-            Track.get(Track.path == file)
-          except Track.DoesNotExist:
-            tracks.append(file)
+        if mimetypes.guess_type(file)[0]:
+          if mimetypes.guess_type(file)[0].startswith('audio/'):
+            try:
+              Track.get(Track.path == file)
+            except Track.DoesNotExist:
+              tracks.append(file)
     for file in tracks:
       print("%i of %i" % (tracks.index(file)+1, len(tracks)))
       print(file)
