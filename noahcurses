@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import curses, random, subprocess, argparse, re, json, pylast, datetime
+import curses, random, subprocess, argparse, re, json, pylast, datetime, mutagenx
 from michimusemodels import *
 
 class NoahCurses(object):
@@ -52,10 +52,18 @@ class NoahCurses(object):
       while self.playa.poll() is None:
         self.playa.kill()
     self.current = self.tracks.pop()
+    mdat = mutagenx.File(self.current.path)
+    if 'musicbrainz_trackid' in mdat:
+      self.mbtid = mdat['musicbrainz_trackid'][0]
+    else:
+      self.mbtid = None
     self.playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', '-autoexit', self.current.path])
     self.draw()
     if self.lastfm is not None:
-      self.lastfm.update_now_playing(artist=self.current.artist, album=self.current.album, title=self.current.title)
+      try:
+        self.lastfm.update_now_playing(artist=self.current.artist, album=self.current.album, title=self.current.title, mbid=self.mbtid)
+      except pylast.NetworkError:
+        pass
   def main(self, screen):
     self.screen = screen
     curses.curs_set(0)
@@ -83,7 +91,10 @@ class NoahCurses(object):
       if event == ord("r") or self.screen.getmaxyx() != self.dims:
         self.draw()
       if (datetime.datetime.now() - self.lasttime).total_seconds() > 60 and self.lastfm is not None and not self.scrobbled:
-        self.lastfm.scrobble(timestamp=round(self.lasttime.timestamp()), artist=self.current.artist, album=self.current.album, title=self.current.title)
+        try:
+          self.lastfm.scrobble(timestamp=round(self.lasttime.timestamp()), artist=self.current.artist, album=self.current.album, title=self.current.title, mbid=self.mbtid)
+        except pylast.NetworkError:
+          pass
         self.scrobbled = True
 
 if __name__ == '__main__':
