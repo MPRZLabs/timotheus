@@ -1,0 +1,49 @@
+#!/usr/bin/env python3
+import subprocess, argparse, re, os, sys
+from michimusemodels import *
+
+if __name__ == '__main__':
+  parser = argparse.ArgumentParser()
+  parser.add_argument('outdir', type=str)
+  parser.add_argument('codec', type=str)
+  parser.add_argument('extension', type=str)
+  parser.add_argument('-ar', '--artist', type=str, help='artist regex to match', default='.+')
+  parser.add_argument('-al', '--album', type=str, help='album regex to match', default='.+')
+  parser.add_argument('-t', '--title', type=str, help='title regex to match', default='.+')
+  parser.add_argument('-p', '--path', type=str, help='path regex to match', default='.+')
+  parser.add_argument('-g', '--glob', type=str, help='regex that anything has to match', default="")
+  args = parser.parse_args()
+  if os.path.exists(args.outdir):
+    if os.path.isfile(args.outdir):
+      sys.exit(2)
+  else:
+    os.makedirs(args.outdir)
+  artistregex = re.compile(args.artist)
+  albumregex = re.compile(args.album)
+  titleregex = re.compile(args.title)
+  pathregex = re.compile(args.path)
+  if len(args.glob) > 0:
+    globalregex = re.compile(args.glob)
+  else:
+    globalregex = None
+  tracks = []
+  if globalregex is not None:
+    for track in Track.select():
+      if globalregex.match(track.get_artist()) or globalregex.match(track.get_album()) or globalregex.match(track.get_title()) or globalregex.match(track.path):
+        tracks.append(track)
+  else:
+    for track in Track.select():
+      if artistregex.match(track.get_artist()) and albumregex.match(track.get_album()) and titleregex.match(track.get_title()) and pathregex.match(track.path):
+        tracks.append(track)
+  for track in tracks:
+    album = re.sub("[^a-zA-Z0-9]","", track.album)
+    if len(album) < 1:
+      album = "unknowwwn"
+    artist = re.sub("[^a-zA-Z0-9]","", track.artist)
+    if len(artist) < 1:
+      artist = "unknowwwn"
+    title = re.sub("[^a-zA-Z0-9]","", track.title)
+    if len(title) < 1:
+      title = "unknowwwn"
+    os.makedirs(os.path.join(args.outdir, artist, album), exist_ok=True)
+    subprocess.call(['ffmpeg', '-i', track.path, '-c:a', args.codec, os.path.join(args.outdir, artist, album, '%i-%s.%s' % (track.id, title, args.extension.lstrip('.')))])

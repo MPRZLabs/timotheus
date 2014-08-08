@@ -6,5 +6,5 @@ setup(name='michi-timotheus',
       description='wrapper over TiMidity++ and FFmpeg',
       url='http://github.com/michcioperz/timotheus',
       py_modules=['michimusemodels'],
-      scripts=['timotheus','ffzanz','mr.scan.64','noahcurses'],
+      scripts=['timotheus','ffzanz','mr.scan.64','noahcurses','spaghettimissionaire'],
       )
