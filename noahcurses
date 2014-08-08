@@ -1,11 +1,16 @@
 #!/usr/bin/env python3
-import curses, random, subprocess, argparse, re, json
+import curses, random, subprocess, argparse, re, json, pylast, datetime
 from michimusemodels import *
 
 class NoahCurses(object):
   titlebar = "noahcurses"
   playa = None
-  def __init__(self, args):
+  def __init__(self, args, conf):
+    self.conf = conf
+    if "lastfm" in self.conf:
+      self.lastfm = pylast.LastFMNetwork(api_key=self.conf["lastfm"]["api_key"],api_secret=self.conf["lastfm"]["api_secret"],username=self.conf["lastfm"]["username"],password_hash=pylast.md5(self.conf["lastfm"]["password"]))
+    else:
+      self.lastfm = None
     self.artistregex = re.compile(args.artist)
     self.albumregex = re.compile(args.album)
     self.titleregex = re.compile(args.title)
@@ -14,6 +19,7 @@ class NoahCurses(object):
       self.globalregex = re.compile(args.glob)
     else:
       self.globalregex = None
+    self.current = None
   def draw(self):
     self.dims = self.screen.getmaxyx()
     self.screen.clear()
@@ -38,6 +44,8 @@ class NoahCurses(object):
           self.tracks.append(track)
     random.shuffle(self.tracks)
   def newtrack(self):
+    self.lasttime = datetime.datetime.now()
+    self.scrobbled = False
     if len(self.tracks) < 1:
       self.reloadtracks()
     if self.playa:
@@ -46,6 +54,8 @@ class NoahCurses(object):
     self.current = self.tracks.pop()
     self.playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', '-autoexit', self.current.path])
     self.draw()
+    if self.lastfm is not None:
+      self.lastfm.update_now_playing(artist=self.current.artist, album=self.current.album, title=self.current.title)
   def main(self, screen):
     self.screen = screen
     curses.curs_set(0)
@@ -72,6 +82,9 @@ class NoahCurses(object):
         self.newtrack()
       if event == ord("r") or self.screen.getmaxyx() != self.dims:
         self.draw()
+      if (datetime.datetime.now() - self.lasttime).total_seconds() > 60 and self.lastfm is not None and not self.scrobbled:
+        self.lastfm.scrobble(timestamp=round(self.lasttime.timestamp()), artist=self.current.artist, album=self.current.album, title=self.current.title)
+        self.scrobbled = True
 
 if __name__ == '__main__':
   parser = argparse.ArgumentParser()
@@ -86,4 +99,4 @@ if __name__ == '__main__':
   parser.add_argument('-p', '--path', type=str, help='path regex to match', default=defreg['regex']['path'])
   parser.add_argument('-g', '--glob', type=str, help='regex that anything has to match', default="")
   args = parser.parse_args()
-  curses.wrapper(NoahCurses(args).main)
+  curses.wrapper(NoahCurses(args, defreg).main)
