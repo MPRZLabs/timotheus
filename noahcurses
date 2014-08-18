@@ -25,7 +25,8 @@ class FFplayer(Player):
     self.path = path
     self.process = subprocess.Popen(['ffplay','-nodisp','-loglevel','quiet','-autoexit',path])
   def destroy(self):
-    self.process.kill()
+    if not self.is_over_yet():
+      self.process.kill()
   def is_over_yet(self):
     if self.process.poll() is None:
       return False
@@ -52,7 +53,8 @@ class VLCplayer(Player):
     if self.playing:
       self.toggle()
   def destroy(self):
-    self.command('quit')
+    if not self.is_over_yet():
+      self.command('quit')
   def is_over_yet(self):
     if self.process.poll() is None:
       return False
@@ -69,7 +71,8 @@ class TiMidityplayer(Player):
     else:
       return True
   def destroy(self):
-    self.process.kill()
+    if not self.is_over_yet():
+      self.process.kill()
 
 class NoahCurses(object):
   titlebar = "noahcurses"
