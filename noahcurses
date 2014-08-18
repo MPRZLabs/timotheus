@@ -83,14 +83,8 @@ class NoahCurses(object):
       self.lastfm = pylast.LastFMNetwork(api_key=self.conf["lastfm"]["api_key"],api_secret=self.conf["lastfm"]["api_secret"],username=self.conf["lastfm"]["username"],password_hash=pylast.md5(self.conf["lastfm"]["password"]))
     else:
       self.lastfm = None
-    self.artistregex = re.compile(args.artist)
-    self.albumregex = re.compile(args.album)
-    self.titleregex = re.compile(args.title)
-    self.pathregex = re.compile(args.path)
-    if len(args.glob) > 0:
-      self.globalregex = re.compile(args.glob)
-    else:
-      self.globalregex = None
+    if 'tag' in args:
+      self.tag = re.compile(args.tag)
     self.current = None
   def draw(self):
     self.dims = self.screen.getmaxyx()
@@ -106,14 +100,15 @@ class NoahCurses(object):
     self.screen.refresh()
   def reloadtracks(self):
     self.tracks = []
-    if self.globalregex is not None:
-      for track in Track.select():
-        if self.globalregex.match(track.get_artist()) or self.globalregex.match(track.get_album()) or self.globalregex.match(track.get_title()) or self.globalregex.match(track.path):
-          self.tracks.append(track)
+    if self.tag is not None:
+      for tag in Tag.select():
+        if self.tag.search(tag.name):
+          for tracktag in tag.marks:
+            if tracktag.track not in self.tracks:
+              self.tracks.append(tracktag.track)
     else:
       for track in Track.select():
-        if self.artistregex.match(track.get_artist()) and self.albumregex.match(track.get_album()) and self.titleregex.match(track.get_title()) and self.pathregex.match(track.path):
-          self.tracks.append(track)
+        self.tracks.append(track)
     random.shuffle(self.tracks)
   def newtrack(self):
     self.lasttime = datetime.datetime.now()
@@ -191,10 +186,6 @@ if __name__ == '__main__':
       confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+','path':'.+'}}, indent=4))
   with open(os.path.expanduser('~/.config/michimuseconf.json')) as confile:
     defreg = json.loads(confile.read())
-  parser.add_argument('-ar', '--artist', type=str, help='artist regex to match', default=defreg['regex']['artist'])
-  parser.add_argument('-al', '--album', type=str, help='album regex to match', default=defreg['regex']['album'])
-  parser.add_argument('-t', '--title', type=str, help='title regex to match', default=defreg['regex']['title'])
-  parser.add_argument('-p', '--path', type=str, help='path regex to match', default=defreg['regex']['path'])
-  parser.add_argument('-g', '--glob', type=str, help='regex that anything has to match', default="")
+  parser.add_argument('-m', '--tag', type=str, help='regex to select tags',)
   args = parser.parse_args()
   curses.wrapper(NoahCurses(args, defreg).main)
