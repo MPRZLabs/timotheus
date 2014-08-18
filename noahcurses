@@ -1,6 +1,75 @@
 #!/usr/bin/env python3
-import curses, random, subprocess, argparse, re, json, pylast, datetime, mutagenx
+import curses, random, subprocess, argparse, re, json, pylast, datetime, mutagenx, mimetypes
 from michimusemodels import *
+
+class Player(object):
+  def __init__(self, path):
+    pass
+  def play(self):
+    raise NotImplementedError("Method play is not implemented for this player type")
+  def pause(self):
+    raise NotImplementedError("Method pause is not implemented for this player type")
+  def toggle(self):
+    raise NotImplementedError("Method toggle is not implemented for this player type")
+  def time(self):
+    raise NotImplementedError("Method time is not implemented for this player type")
+  def destroy(self):
+    raise NotImplementedError("Method destroy is not implemented for this player type")
+  def is_over_yet(self):
+    raise NotImplementedError("Method is_over_yet is not implemented for this player type")
+  def is_playing(self):
+    raise NotImplementedError("Method is_playing is not implemented for this player type")
+
+class FFplayer(Player):
+  def __init__(self, path):
+    self.path = path
+    self.process = subprocess.Popen(['ffplay','-nodisp','-loglevel','quiet','-autoexit',path])
+  def destroy(self):
+    self.process.kill()
+  def is_over_yet(self):
+    if self.process.poll() is None:
+      return False
+    else:
+      return True
+
+class VLCplayer(Player):
+  def __init__(self, path):
+    self.path = path
+    self.process = subprocess.Popen(['vlc', '--play-and-exit', '-q', '-I', 'rc', path], stdin=subprocess.PIPE, stdout=subprocess.DEVNULL)
+    self.playing = True
+  def is_playing(self):
+    return self.playing
+  def command(self, cmd):
+    self.process.stdin.write(('%s\n' % cmd).encode())
+    self.process.stdin.flush()
+  def toggle(self):
+    self.command('pause')
+    self.playing = False
+  def play(self):
+    if not self.playing:
+      self.toggle()
+  def pause(self):
+    if self.playing:
+      self.toggle()
+  def destroy(self):
+    self.command('quit')
+  def is_over_yet(self):
+    if self.process.poll() is None:
+      return False
+    else:
+      return True
+
+class TiMidityplayer(Player):
+  def __init__(self, path):
+    self.path = path
+    self.process = subprocess.Popen(['timidity', '-idqqq', path])
+  def is_over_yet(self):
+    if self.process.poll() is None:
+      return False
+    else:
+      return True
+  def destroy(self):
+    self.process.kill()
 
 class NoahCurses(object):
   titlebar = "noahcurses"
@@ -49,19 +118,34 @@ class NoahCurses(object):
     if len(self.tracks) < 1:
       self.reloadtracks()
     if self.playa:
-      while self.playa.poll() is None:
-        self.playa.kill()
+      self.playa.destroy()
     self.current = self.tracks.pop()
-    mdat = mutagenx.File(self.current.path)
-    if 'musicbrainz_trackid' in mdat:
-      self.mbtid = mdat['musicbrainz_trackid'][0]
+    self.mdat = mutagenx.File(self.current.path)
+    if self.mdat and 'title' in self.mdat:
+      self.mttitle = self.mdat['title'][0]
+    else:
+      self.mttitle = self.current.title
+    if self.mdat and 'artist' in self.mdat:
+      self.mtartist = self.mdat['artist'][0]
+    else:
+      self.mtartist = self.current.artist
+    if self.mdat and 'album' in self.mdat:
+      self.mtalbum = self.mdat['album'][0]
+    else:
+      self.mtalbum = self.current.album
+    if self.mdat and 'musicbrainz_trackid' in self.mdat:
+      self.mtid = self.mdat['musicbrainz_trackid'][0]
     else:
       self.mbtid = None
-    self.playa = subprocess.Popen(['ffplay', '-nodisp', '-loglevel', 'quiet', '-autoexit', self.current.path])
+    mimetype = mimetypes.guess_type(self.current.path)[0]
+    if 'midi' in mimetype:
+      self.playa = TiMidityplayer(self.current.path)
+    else:
+      self.playa = VLCplayer(self.current.path)
     self.draw()
     if self.lastfm is not None:
       try:
-        self.lastfm.update_now_playing(artist=self.current.artist, album=self.current.album, title=self.current.title, mbid=self.mbtid)
+        self.lastfm.update_now_playing(artist=self.mtartist, album=self.mtalbum, title=self.mttitle, mbid=self.mtid)
       except pylast.NetworkError:
         pass
   def main(self, screen):
@@ -76,14 +160,14 @@ class NoahCurses(object):
     self.reloadtracks()
     self.newtrack()
     while True:
-      if self.playa.poll() is not None:
+      if self.playa.is_over_yet():
         self.newtrack()
       event = self.screen.getch()
       if event == ord("q"):
-        self.playa.kill()
+        self.playa.destroy()
         break
       if event == ord("n") or event == curses.KEY_RIGHT:
-        self.playa.kill()
+        self.playa.destroy()
         self.newtrack()
       if event == ord("s"):
         self.reloadtracks()
@@ -92,7 +176,7 @@ class NoahCurses(object):
         self.draw()
       if (datetime.datetime.now() - self.lasttime).total_seconds() > 60 and self.lastfm is not None and not self.scrobbled:
         try:
-          self.lastfm.scrobble(timestamp=round(self.lasttime.timestamp()), artist=self.current.artist, album=self.current.album, title=self.current.title, mbid=self.mbtid)
+          self.lastfm.scrobble(timestamp=round(self.lasttime.timestamp()), artist=self.mtartist, album=self.mtalbum, title=self.mttitle, mbid=self.mtid)
         except pylast.NetworkError:
           pass
         self.scrobbled = True

@@ -30,19 +30,19 @@ def main():
         artist = mutafile["artist"][0]
       else:
         print()
-        if "title" in mutafile:
+        if mutafile and "title" in mutafile:
           title = input("Title: [%s] " % mutafile["title"][0])
           if len(title) < 1:
             title = mutafile["title"][0]
         else:
           title = input("Title: ")
-        if "album" in mutafile:
+        if mutafile and "album" in mutafile:
           album = input("Album: [%s] " % mutafile["album"][0])
           if len(album) < 1:
             album = mutafile["album"][0]
         else:
           album = input("Album: ")
-        if "artist" in mutafile:
+        if mutafile and "artist" in mutafile:
           artist = input("Artist: [%s] " % mutafile["artist"][0])
           if len(artist) < 1:
             artist = mutafile["artist"][0]
