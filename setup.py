@@ -1,6 +1,6 @@
 from distutils.core import setup
 setup(name='michi-timotheus',
-      version='1.7.5',
+      version='1.7.6',
       author='Michał Sidor',
       author_email='michcioperz@gmail.com',
       description='wrapper over TiMidity++ and FFmpeg',

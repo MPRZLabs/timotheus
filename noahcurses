@@ -186,6 +186,6 @@ if __name__ == '__main__':
       confile.write(json.dumps({'regex':{'artist':'.+','album':'.+','title':'.+','path':'.+'}}, indent=4))
   with open(os.path.expanduser('~/.config/michimuseconf.json')) as confile:
     defreg = json.loads(confile.read())
-  parser.add_argument('-m', '--tag', type=str, help='regex to select tags',)
+  parser.add_argument('tag', type=str, help='regex to select tags',)
   args = parser.parse_args()
   curses.wrapper(NoahCurses(args, defreg).main)
